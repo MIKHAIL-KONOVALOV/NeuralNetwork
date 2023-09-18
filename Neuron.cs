@@ -31,6 +31,13 @@ namespace NeuralNetwork
             Output = Sigmoid(sum);
             return Output;
         }
+        public void SetWeights(params double[] weights)
+        {
+            for (int i = 0; i < weights.Length; i++)
+            {
+                Weights[i] = weights[i];
+            }
+        }
 
         private double Sigmoid(double x)
         {

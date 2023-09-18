@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO.IsolatedStorage;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,9 +23,41 @@ namespace NeuralNetwork
             CreateOutputLayer();
         }
 
-        public double FeedForward(List<double> inputSignals)
+        public Neuron FeedForward(List<double> inputSignals)
         {
+            SendSignalsToInputNeurons(inputSignals);
+            FeedForwardAllHiddenLayers();
+            if (Topology.OutputCount == 1)
+            {
+                return Layers.Last().Neurons[0];
+            } else
+            {
+                return Layers.Last().Neurons.OrderByDescending(n => n.Output).First();
+            }
 
+        }
+
+        private void FeedForwardAllHiddenLayers()
+        {
+            for (int i = 1; i < Layers.Count; i++)
+            {
+                var layer = Layers[i];
+                var previousLayerSignals = Layers[i-1].GetSignals();
+                foreach (var neuron in layer.Neurons)
+                {
+                    neuron.FeedForward(previousLayerSignals);
+                }
+            }
+        }
+
+        private void SendSignalsToInputNeurons(List<double> inputSignals)
+        {
+            for (int i = 0; i < inputSignals.Count; i++)
+            {
+                var signal = new List<double>() { inputSignals[i] };
+                var neuron = Layers[0].Neurons[i];
+                neuron.FeedForward(signal);
+            }
         }
 
         private void CreateOutputLayer()
